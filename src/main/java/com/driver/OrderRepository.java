@@ -9,8 +9,7 @@ import java.util.HashMap;
 @Repository
 public class OrderRepository {
 
-    @Autowired
-     private DeliveryPartner deliveryPartner;
+
      HashMap<String,Order> order = new HashMap();
      HashMap<String,DeliveryPartner>deliverPartnerMap = new HashMap<>();
 

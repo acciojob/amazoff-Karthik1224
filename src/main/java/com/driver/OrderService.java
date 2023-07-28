@@ -6,15 +6,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Component
+@Service
 public class OrderService {
 
 
     @Autowired
     private OrderRepository orderRepository;
 
-    @Autowired
-    private DeliveryPartner deliveryPartner;
      public void addOrder(Order order)
      {
          String id = order.getId();
