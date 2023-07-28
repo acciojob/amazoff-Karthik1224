@@ -23,11 +23,7 @@ public class OrderRepository {
      }
     public void addPartner(String id)
     {
-        int numberOfOrders = deliveryPartner.getNumberOfOrders();
-        DeliveryPartner obj = new DeliveryPartner(id);
-        obj.setNumberOfOrders(numberOfOrders);
-
-        deliverPartnerMap.put(id,obj);
+        deliverPartnerMap.put(id,new DeliveryPartner(id));
 
     }
 
