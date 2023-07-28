@@ -14,9 +14,8 @@ public class OrderRepository {
      HashMap<String,Order> order = new HashMap();
      HashMap<String,DeliveryPartner>deliverPartnerMap = new HashMap<>();
 
-     HashMap<String,String>assignOrderToPartner = new HashMap<>();
+     HashMap<String,List<Order>>assignOrderToPartner = new HashMap<>();
 
-     HashMap<String,Integer>numOfOrdersAssignedToPartner = new HashMap<>();
 
      public void addOrder(String id,Order orderItem)
      {
@@ -34,9 +33,21 @@ public class OrderRepository {
 
     public void addOrderPartnerPair(String orderId, String partnerId)
     {
-         assignOrderToPartner.put(partnerId,orderId);
+         Order obj = order.get(orderId);
+         if(assignOrderToPartner.containsKey(partnerId))
+         {
+             List<Order> list = assignOrderToPartner.get(partnerId);
+             list.add(obj);
+             assignOrderToPartner.put(partnerId,list);
 
-         numOfOrdersAssignedToPartner.put(partnerId,numOfOrdersAssignedToPartner.getOrDefault(partnerId,0)+1);
+         }
+         else
+         {
+             List<Order> list = new ArrayList<>();
+             list.add(obj);
+             assignOrderToPartner.put(partnerId,list);
+         }
+
 
     }
 
@@ -65,19 +76,15 @@ public class OrderRepository {
     }
     public int getOrderCountByPartnerId(String id)
     {
-       return numOfOrdersAssignedToPartner.get(id);
+         List<Order>list = assignOrderToPartner.get(id);
+         return list.size();
     }
 
-    public List<String> getOrdersByPartnerId(String id)
+    public List<Order> getOrdersByPartnerId(String id)
     {
-        List<String> ans = new ArrayList<>();
-        if(assignOrderToPartner.containsKey(id))
-        {
-            String ord = assignOrderToPartner.get(id);
-            ans.add(ord);
-        }
-        return ans;
 
+         List<Order> list = assignOrderToPartner.get(id);
+         return list;
     }
 
     public List<Order> getAllOrders()
@@ -93,7 +100,57 @@ public class OrderRepository {
     public int getCountOfUnassignedOrders()
     {
         int orderSize = order.size();
-        int orderAssignToPartner = assignOrderToPartner.size();
-        return orderSize-orderAssignToPartner;
+        int numberOfOrdersAssigned = 0;
+        for(List<Order>it:assignOrderToPartner.values())
+        {
+            numberOfOrdersAssigned += it.size();
+        }
+
+        return orderSize - numberOfOrdersAssigned;
+    }
+    public int getOrdersLeftAfterGivenTimeByPartnerId(int time,String partnerId)
+    {
+        List<Order> list = assignOrderToPartner.get(partnerId);
+
+        int count=0;
+        for(Order it:list)
+        {
+            if(it.getDeliveryTime() > time)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+    public int getLastDeliveryTimeByPartnerId(String id)
+    {
+        List<Order> list = assignOrderToPartner.get(id);
+        int time = Integer.MIN_VALUE;
+        for(Order it:list)
+        {
+            time = Math.max(time,it.getDeliveryTime());
+        }
+        return time;
+    }
+    public void deletePartnerById(String id)
+    {
+         assignOrderToPartner.remove(id);
+
+         deliverPartnerMap.remove(id);
+
+    }
+    public void deleteOrderById(String id)
+    {
+        order.remove(id);
+        for(List<Order>it: assignOrderToPartner.values())
+        {
+            for(Order obj : it)
+            {
+                if(obj.getId().equals(id))
+                {
+                    it.remove(obj);
+                }
+            }
+        }
     }
  }
